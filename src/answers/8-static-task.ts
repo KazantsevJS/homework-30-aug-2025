@@ -22,7 +22,7 @@
     static fromObject(obj: {
       name: string;
       age: number;
-      country: { name: string; [key: string]: any };
+      country: { name: string } & Record<string, unknown>;
     }): User {
       const country = User.parseCountry(obj.country);
       return new User(obj.name, obj.age, country);
