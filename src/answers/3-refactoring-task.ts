@@ -6,8 +6,6 @@
 
   class User {}
 
-  // Отрефакторите ниже...
-
   enum WhomEnum {
     Self,
     Other,
@@ -20,22 +18,35 @@
     readonly users: User[] = [];
 
     send(whom: WhomEnum, user?: User): void {
-    // Я разбил условие на 3 более читаемые
-      if (whom === WhomEnum.Self) {
-        if (user) {
-          socket.send(user); 
-        }
-      } else if (whom === WhomEnum.Other) {
-        for (const _user of this.users) {
-          if (_user !== user) {
-            socket.send(_user);
-          }
-        }
-      } else if (whom === WhomEnum.All) {
-        for (const _user of this.users) {
+      switch (whom) {
+        case WhomEnum.Self:
+          this.sendToSelf(user);
+          break;
+        case WhomEnum.Other:
+          this.sendToOthers(user);
+          break;
+        case WhomEnum.All:
+          this.sendToAll();
+          break;
+      }
+    }
+
+    private sendToSelf(user?: User): void {
+      if (user) {
+        socket.send(user);
+      }
+    }
+
+    private sendToOthers(excludedUser?: User): void {
+      this.users.forEach((_user) => {
+        if (_user !== excludedUser) {
           socket.send(_user);
         }
-      }
+      });
+    }
+
+    private sendToAll(): void {
+      this.users.forEach((user) => socket.send(user));
     }
   }
 }
